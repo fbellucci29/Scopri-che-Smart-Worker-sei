@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Che Smart Worker Sei?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .quiz-header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+        }
+
+        .quiz-header .emoji {
+            font-size: 4em;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .quiz-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .quiz-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.5s ease;
+        }
+
+        .question {
+            margin-bottom: 25px;
+        }
+
+        .question h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(10px);
+        }
+
+        .option.selected {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-color: #4facfe;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+
+        .option-emoji {
+            font-size: 1.8em;
+            min-width: 40px;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 1.1em;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 18px 50px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: #1a1a2e;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-card {
+            display: none;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 50px 40px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .result-emoji {
+            font-size: 6em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .result-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .result-description {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .result-traits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .trait {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.1em;
+        }
+
+        .btn-restart {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        .btn-restart:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .quiz-header h1 { font-size: 2em; }
+            .quiz-card { padding: 25px; }
+            .question h3 { font-size: 1.2em; }
+            .option { padding: 15px; }
+            .result-title { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quiz-header">
+            <span class="emoji">🎯</span>
+            <h1>Che Smart Worker Sei?</h1>
+            <p>Rispondi a 6 domande e scopri il tuo profilo!</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <div id="quizContainer"></div>
+
+        <div class="btn-container" id="btnContainer" style="display: none;">
+            <button class="btn" id="btnSubmit" disabled>Scopri il tuo profilo! ✨</button>
+        </div>
+
+        <div class="result-card" id="resultCard">
+            <span class="result-emoji" id="resultEmoji"></span>
+            <h2 class="result-title" id="resultTitle"></h2>
+            <p class="result-description" id="resultDescription"></p>
+            <div class="result-traits" id="resultTraits"></div>
+            <button class="btn btn-restart" onclick="location.reload()">🔄 Rifai il Quiz</button>
+            <button class="btn" onclick="alert('https://ilcanterano.blogspot.com/2025/10/smart-working-sicurezza-e-benessere.html')" style="margin-left: 10px;">🏠 Torna alla Home</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Come preferisci organizzare la tua giornata lavorativa?",
+                options: [
+                    { text: "Con una routine precisa e orari fissi", emoji: "📋", type: "organizzato" },
+                    { text: "In modo flessibile, secondo le mie energie", emoji: "🌊", type: "flessibile" },
+                    { text: "Con obiettivi chiari ma libertà nel come raggiungerli", emoji: "🎯", type: "efficiente" },
+                    { text: "Alternando lavoro e pause creative", emoji: "🎨", type: "creativo" }
+                ]
+            },
+            {
+                question: "Qual è il tuo ambiente di lavoro ideale?",
+                options: [
+                    { text: "Ufficio dedicato, silenzioso e ordinato", emoji: "🏢", type: "organizzato" },
+                    { text: "Ovunque mi senta ispirato, anche il divano!", emoji: "🛋️", type: "flessibile" },
+                    { text: "Uno spazio ergonomico e tecnologicamente efficiente", emoji: "💻", type: "efficiente" },
+                    { text: "Un ambiente stimolante con musica e colori", emoji: "🎵", type: "creativo" }
+                ]
+            },
+            {
+                question: "Come gestisci le pause durante il lavoro?",
+                options: [
+                    { text: "Le programmo a orari precisi", emoji: "⏰", type: "organizzato" },
+                    { text: "Quando sento di averne bisogno", emoji: "☕", type: "flessibile" },
+                    { text: "Uso tecniche come il Pomodoro", emoji: "🍅", type: "efficiente" },
+                    { text: "Pause creative: disegno, musica, movimento", emoji: "🎭", type: "creativo" }
+                ]
+            },
+            {
+                question: "Come comunichi con i colleghi?",
+                options: [
+                    { text: "Meeting programmati e report strutturati", emoji: "📊", type: "organizzato" },
+                    { text: "Messaggi veloci quando serve, senza troppe formalità", emoji: "💬", type: "flessibile" },
+                    { text: "Tool collaborativi e comunicazione asincrona", emoji: "🔧", type: "efficiente" },
+                    { text: "Brainstorming e sessioni creative di gruppo", emoji: "💡", type: "creativo" }
+                ]
+            },
+            {
+                question: "Come gestisci il confine tra lavoro e vita privata?",
+                options: [
+                    { text: "Orari rigidi: finito il lavoro, stacco completamente", emoji: "🚪", type: "organizzato" },
+                    { text: "È tutto fluido, lavoro quando mi sento produttivo", emoji: "🌈", type: "flessibile" },
+                    { text: "Uso strumenti per monitorare e bilanciare il tempo", emoji: "⚖️", type: "efficiente" },
+                    { text: "Integro lavoro e passioni personali naturalmente", emoji: "🎨", type: "creativo" }
+                ]
+            },
+            {
+                question: "Cosa ti motiva di più nello smart working?",
+                options: [
+                    { text: "La possibilità di organizzare tutto al meglio", emoji: "📅", type: "organizzato" },
+                    { text: "La libertà di scegliere dove e quando lavorare", emoji: "🗺️", type: "flessibile" },
+                    { text: "L'efficienza e il risparmio di tempo negli spostamenti", emoji: "⚡", type: "efficiente" },
+                    { text: "Lo spazio per esprimere creatività e autonomia", emoji: "✨", type: "creativo" }
+                ]
+            }
+        ];
+
+        const profiles = {
+            organizzato: {
+                emoji: "🦉",
+                title: "L'Organizzatore Metodico",
+                description: "Sei il maestro della pianificazione! Ami la struttura, gli orari definiti e le routine consolidate. Il tuo smart working è un modello di efficienza e ordine. La tua scrivania è sempre impeccabile e sai esattamente dove si trova ogni file.",
+                traits: ["📋 Pianificazione impeccabile", "⏰ Rispetto degli orari", "📊 Organizzazione perfetta", "🎯 Obiettivi chiari"]
+            },
+            flessibile: {
+                emoji: "🦋",
+                title: "Il Flessibile Adattivo",
+                description: "Sei un camaleonte del lavoro! Ti adatti facilmente a qualsiasi situazione e ambiente. Il tuo smart working è fluido e naturale: lavori quando ti senti più produttivo, ovunque tu sia. La tua forza è la capacità di trovare equilibrio in modo spontaneo.",
+                traits: ["🌊 Massima adattabilità", "☕ Pause intuitive", "🗺️ Libertà di movimento", "🌈 Equilibrio naturale"]
+            },
+            efficiente: {
+                emoji: "⚡",
+                title: "L'Efficiente Tecnologico",
+                description: "Sei il re o la regina della produttività! Usi strumenti, app e tecniche per ottimizzare ogni minuto. Il tuo smart working è un esempio di efficienza: niente tempo sprecato, tutto sotto controllo con i migliori tool disponibili. Pomodoro? Fatto. Project management? Padroneggiato.",
+                traits: ["💻 Maestro della tecnologia", "⚡ Massima produttività", "🔧 Tool avanzati", "⏱️ Gestione tempo perfetta"]
+            },
+            creativo: {
+                emoji: "🎨",
+                title: "Il Creativo Ispiratore",
+                description: "Sei l'artista dello smart working! Hai bisogno di spazi stimolanti, colori, musica e libertà per esprimerti al meglio. Il tuo ambiente di lavoro è unico e personale. Integri naturalmente passione e professione, trovando ispirazione ovunque.",
+                traits: ["🎭 Creatività al potere", "🎨 Ambiente stimolante", "💡 Idee innovative", "✨ Espressione personale"]
+            },
+            bilanciato: {
+                emoji: "🌟",
+                title: "Il Bilanciato Armonico",
+                description: "Sei la perfetta via di mezzo! Prendi il meglio da ogni approccio: un po' di struttura, un po' di flessibilità, tecnologia quando serve e creatività per arricchire. Il tuo smart working è equilibrato e sostenibile. Sai quando essere rigido e quando lasciarti andare.",
+                traits: ["⚖️ Perfetto equilibrio", "🌟 Approccio integrato", "🎯 Flessibilità strategica", "💫 Armonia totale"]
+            }
+        };
+
+        let currentQuestion = 0;
+        let answers = { organizzato: 0, flessibile: 0, efficiente: 0, creativo: 0 };
+
+        function renderQuestion(index) {
+            const question = questions[index];
+            const quizContainer = document.getElementById('quizContainer');
+            
+            quizContainer.innerHTML = `
+                <div class="quiz-card">
+                    <div class="question">
+                        <div class="question-number">Domanda ${index + 1} di ${questions.length}</div>
+                        <h3>${question.question}</h3>
+                    </div>
+                    <div class="options">
+                        ${question.options.map((option, i) => `
+                            <div class="option" data-type="${option.type}" data-index="${i}">
+                                <span class="option-emoji">${option.emoji}</span>
+                                <span class="option-text">${option.text}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Add click handlers
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const type = this.dataset.type;
+                    answers[type]++;
+                    
+                    setTimeout(() => {
+                        currentQuestion++;
+                        updateProgress();
+                        
+                        if (currentQuestion < questions.length) {
+                            renderQuestion(currentQuestion);
+                        } else {
+                            showSubmitButton();
+                        }
+                    }, 500);
+                });
+            });
+        }
+
+        function updateProgress() {
+            const progress = (currentQuestion / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showSubmitButton() {
+            document.getElementById('quizContainer').style.display = 'none';
+            const btnContainer = document.getElementById('btnContainer');
+            btnContainer.style.display = 'block';
+            document.getElementById('btnSubmit').disabled = false;
+            document.getElementById('btnSubmit').onclick = showResult;
+        }
+
+        function showResult() {
+            // Trova il profilo dominante
+            let maxType = Object.keys(answers).reduce((a, b) => answers[a] > answers[b] ? a : b);
+            
+            // Se c'è un pareggio o punteggi molto vicini, assegna "bilanciato"
+            const values = Object.values(answers);
+            const max = Math.max(...values);
+            const countMax = values.filter(v => v === max).length;
+            
+            if (countMax > 2 || (max <= 2 && countMax > 1)) {
+                maxType = 'bilanciato';
+            }
+
+            const profile = profiles[maxType];
+            
+            document.getElementById('btnContainer').style.display = 'none';
+            
+            const resultCard = document.getElementById('resultCard');
+            document.getElementById('resultEmoji').textContent = profile.emoji;
+            document.getElementById('resultTitle').textContent = profile.title;
+            document.getElementById('resultDescription').textContent = profile.description;
+            
+            const traitsHtml = profile.traits.map(trait => `<div class="trait">${trait}</div>`).join('');
+            document.getElementById('resultTraits').innerHTML = traitsHtml;
+            
+            resultCard.classList.add('show');
+        }
+
+        // Inizializza il quiz
+        renderQuestion(0);
+        updateProgress();
+    </script>
+</body>
+</html>
