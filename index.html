@@ -262,7 +262,7 @@
             <p class="result-description" id="resultDescription"></p>
             <div class="result-traits" id="resultTraits"></div>
             <button class="btn btn-restart" onclick="location.reload()">🔄 Rifai il Quiz</button>
-            <a href="https://ilcanterano.blogspot.com/2025/10/smart-working-sicurezza-e-benessere.html" class="btn" id="btnBackHome" style="margin-left: 10px; display: inline-block; text-decoration: none;">🏠 Torna alla Home</a>
+           <a href="https://ilcanterano.blogspot.com/2025/10/smart-working-sicurezza-e-benessere.html" class="btn" style="margin-left: 10px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.5); color: #fff; text-decoration: none;">🏠 Torna alla Home</a>
         </div>
     </div>
 
@@ -449,17 +449,13 @@
         renderQuestion(0);
         updateProgress();
 
-        // Pulsante torna alla home
-        setTimeout(() => {
-            const btnBackHome = document.getElementById('btnBackHome');
-            if (btnBackHome) {
-                btnBackHome.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Sostituisci con: window.location.href = 'LINK_ALLA_HOME';
-                    console.log('Torna alla home');
-                });
+        // Pulsante torna alla home - gestito dopo che il risultato è mostrato
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.id === 'btnBackHome') {
+                // window.location.href = 'TUO_LINK_HOME';
+                alert('Inserisci qui il link alla home');
             }
-        }, 100);
+        });
     </script>
 </body>
 </html>
